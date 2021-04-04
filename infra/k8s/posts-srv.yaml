@@ -1,0 +1,19 @@
+# this node-port service. it is for accessing from postman.
+apiVersion: v1
+kind: Service
+metadata:
+  name: posts-srv
+# spec customizes how this service behaves
+spec:
+  type: NodePort
+  #  goal is to expose to pod outside world. selector is which pod.
+  selector:
+    app: posts
+  ports:
+    # this name can be anything
+    - name: posts
+      protocol: TCP
+      # node service is going to have its own port.
+      port: 4000
+      # post container is running on port 4000
+      targetPort: 4000

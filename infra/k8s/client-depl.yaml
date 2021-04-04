@@ -1,0 +1,36 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  # this is whre service looks for to be connected
+  name: client-depl
+spec:
+  replicas: 1
+  # connection between depl and pod is establihed by using selector and labels. metadata part contains the labels,spec contains selectors
+  selector:
+    matchLabels:
+      app: client
+  # -------------CONFIG OF THE PDO-------------------
+  # template has its own metadata and spec. like config inside the config
+  # this config applies to the pod. pod should have its own config inside of deplopment config.
+  template:
+    metadata:
+      labels:
+        app: client
+    # this is the blueprint for the pod. image, port, name of the container .
+    spec:
+      containers:
+        - name: client
+          image: kalinicovic/client
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: client-srv
+spec:
+  selector:
+    app: client
+  ports:
+    - name: client
+      protocol: TCP
+      port: 8080
+      targetPort: 8080

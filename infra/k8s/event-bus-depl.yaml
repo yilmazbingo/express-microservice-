@@ -1,0 +1,39 @@
+# deployment is inside apps. a pod is in v1
+# this specifies the set of objects that we can get
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: event-bus-depl
+spec:
+  # number of pods we wanna create running some particular image
+  replicas: 1
+  # selector is working together with the metadata inside template
+  # selector says take a look at all of those pods created. find the one app:posts label. "app" is arbitrary
+  selector:
+    matchLabels:
+      # this pair is called label. inside template we refer this label
+      app: event-bus
+  template:
+    metadata:
+      labels:
+        app: event-bus
+    spec:
+      containers:
+        - name: event-bus
+          image: kalinicovic/event-bus:latest
+
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: event-bus-srv
+spec:
+  selector:
+    app: event-bus
+  # this is default
+  type: ClusterIP
+  ports:
+    - name: event-bus
+      protocol: TCP
+      port: 4005
+      targetPort: 4005

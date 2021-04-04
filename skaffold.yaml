@@ -1,0 +1,70 @@
+apiVersion: skaffold/v2alpha3
+kind: Config
+deploy:
+  # this tells skaffold that there is a collection of different config files intented for k8s. it is like "watch" command
+  # for any change detection it will run 'k apply -f'
+  # when we start skaffold, it will apply those files, also when we change those, it will apply those files
+  # whenever we stop skaffold, find all the objects related to these config files, delete them but not the config files. so when we start a new projects, those objects that relatoed to this project will be deleted. so we will have a clean cluster
+  kubectl:
+    manifests:
+      - ./infra/k8s/*
+build:
+  local:
+    # we disable the behaviour of pushing the image to hub
+    push: false
+  # this saying there will be some pods that is running code out of the "client" directory. whenever somehting changes inside this directory, skaffold is going to try take those changes and somehow update our pod. there are 2 ways to update
+  # first, if we make a change to .js files, skaffold will take that changed file and just directly throw it into our pod. so our pod will always have the lates code inside of it. if we ever make a change to anything inside this client directory, that is not matched up by this "src" then skafoold then instead try to rebuild the entire image. imagine if we install a new dependency, it will make a change to the package.json but not changing a js file. so skaffold will rebuild our image and update the deployment tied to it.
+  artifacts:
+    - image: kalinicovic/client
+      context: client
+      docker:
+        dockerfile: Dockerfile
+      sync:
+        manual:
+          - src: "src/**/*.js"
+            dest: .
+    - image: kalinicovic/comments
+      context: comments
+      docker:
+        dockerfile: Dockerfile
+      sync:
+        manual:
+          # it does not have src
+          - src: "*.js"
+            dest: .
+    - image: kalinicovic/event-bus
+      context: event-bus
+      docker:
+        dockerfile: Dockerfile
+      sync:
+        manual:
+          # it does not have src
+          - src: "*.js"
+            dest: .
+    - image: kalinicovic/moderation
+      context: moderation
+      docker:
+        dockerfile: Dockerfile
+      sync:
+        manual:
+          # it does not have src
+          - src: ".js"
+            dest: .
+    - image: kalinicovic/posts
+      context: posts
+      docker:
+        dockerfile: Dockerfile
+      sync:
+        manual:
+          # it does not have src
+          - src: ".js"
+            dest: .
+    - image: kalinicovic/query
+      context: query
+      docker:
+        dockerfile: Dockerfile
+      sync:
+        manual:
+          # it does not have src
+          - src: ".js"
+            dest: .

@@ -1,0 +1,35 @@
+# deployment is inside apps. a pod is in v1
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: posts-depl
+spec:
+  # number of pods we wanna create running some particular image
+  replicas: 1
+  # selector is working together with the metadata inside template
+  # selector says take a look at all of those pods created. find the one app:posts label. "app" is arbitrary
+  selector:
+    matchLabels:
+      # this pair is called label. inside template we refer this label
+      app: posts
+  template:
+    metadata:
+      labels:
+        app: posts
+    spec:
+      containers:
+        - name: posts
+          image: kalinicovic/posts:latest
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: posts-clusterip-srv
+spec:
+  selector:
+    app: posts
+  ports:
+    - name: posts
+      protocol: TCP
+      port: 4000
+      targetPort: 4000
